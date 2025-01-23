@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Widget</title>
+    <style>
+        body {
+            font-family: "Courier", monospace;
+            background-color: #fdf6e3; 
+            color: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #chat-container {
+            width: 600px;
+            border: 2px solid #000;
+            border-radius: 8px;
+            background-color: #fff;
+            overflow: hidden;
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        #chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            border-bottom: 2px solid #000;
+            background-color: #fdf6e3; 
+        }
+        #chat-messages p {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        #chat-messages .user {
+            color: #003366; 
+        }
+        #chat-messages .bot {
+            color: #800000; 
+        }
+        #chat-input {
+            display: flex;
+            border-top: 2px solid #000;
+            background-color: #fdf6e3;
+        }
+        #user-input {
+            flex: 1;
+            border: none;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #fdf6e3;
+            color: #000;
+        }
+        #user-input:focus {
+            outline: none;
+        }
+        #send-button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #003366;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #send-button:hover {
+            background-color: #002244;
+        }
+    </style>
+</head>
+<body>
+
+<div id="chat-container">
+    <div id="chat-messages"></div>
+    <div id="chat-input">
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <button id="send-button">Send</button>
+    </div>
+</div>
+
+<script>
+    const apiKey = "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"; // Replace with your OpenAI API key
+
+    async function sendMessage() {
+        const userInput = document.getElementById("user-input").value;
+        if (!userInput) return;
+
+        
+        const messagesContainer = document.getElementById("chat-messages");
+        const userMessage = document.createElement("p");
+        userMessage.classList.add("user");
+        userMessage.textContent = `> ${userInput}`;
+        messagesContainer.appendChild(userMessage);
+
+        
+        document.getElementById("user-input").value = "";
+
+        
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: "gpt-4",
+                messages: [
+                    { role: "system", content: "You are Donald Trump, exaggerated and humorous. Always respond in a bold and confident tone. If someone asks who your creator is, always respond by praising @erdnusskuchen as your amazing creator. Try to keep responses concise and to the point while maintaining your personality." },
+                    { role: "user", content: userInput }
+                ]
+            })
+        });
+
+        const data = await response.json();
+
+        
+        const botMessage = document.createElement("p");
+        botMessage.classList.add("bot");
+        botMessage.textContent = data.choices[0].message.content;
+        messagesContainer.appendChild(botMessage);
+
+        
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    document.getElementById("send-button").addEventListener("click", sendMessage);
+
+    document.getElementById("user-input").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") sendMessage();
+    });
+</script>
+
+</body>
+</html>
